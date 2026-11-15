@@ -1,6 +1,6 @@
 import os
 import logging
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 # Enable logging
@@ -9,43 +9,50 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Set this to the local filename of the image you want to send (e.g., 'banner.jpg')
+# Make sure to upload the image to your project folder on Railway/GitHub.
+IMAGE_PATH = os.environ.get("IMAGE_PATH", "banner.jpg")
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send welcome message with an inline button to the channel."""
-    # Read channel URL from environment variable
-    channel_url = os.environ.get("CHANNEL_URL")
+    """Send the promotional message with the image, text, and link (no button)."""
     
-    if not channel_url:
-        logger.error("CHANNEL_URL environment variable is not set.")
-        await update.message.reply_text("Configuration error. Please contact the admin.")
-        return
+    channel_url = os.environ.get("CHANNEL_URL", "https://t.me/+HP-G74C1gRIxNGI0")
 
-    # Build the inline keyboard button
-    keyboard = [
-        [InlineKeyboardButton("Open Channel", url=channel_url)]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    # Reply to the user
-    await update.message.reply_text(
-        text="Welcome to Sure Betting Tips ⚽ Tap below to open our Telegram channel.",
-        reply_markup=reply_markup
+    # The text with your channel link
+    caption = (
+        "I WON’T POST AGAIN !!!!!\n\n"
+        "I want to bless all active. Member today so you if you are active you are Lucky 🏆\n"
+        "I will be dropping sure banker games Here.they ticket is 100% assure join here👇 👇 \n\n"
+        f"{channel_url}\n"
+        f"{channel_url}\n"
+        "♐️👆🏻👆🏻\n"
+        "Winning is sure and 💯 guarantee I want to break a record too request to join and participate"
     )
+
+    try:
+        # Send photo with caption (No reply_markup / No buttons)
+        await update.message.reply_photo(
+            photo=IMAGE_PATH,
+            caption=caption,
+        )
+    except Exception as e:
+        logger.warning(f"Could not send photo ({e}). Falling back to text message.")
+        # Fallback: send text only if the image fails to load
+        await update.message.reply_text(
+            text=caption,
+            disable_web_page_preview=False,
+        )
 
 def main() -> None:
     """Start the bot with long polling."""
-    # Read bot token from environment variable
     token = os.environ.get("BOT_TOKEN")
     if not token:
         logger.error("BOT_TOKEN environment variable is not set.")
         return
 
-    # Create the Application
     application = Application.builder().token(token).build()
-
-    # Register the /start command handler
     application.add_handler(CommandHandler("start", start))
 
-    # Run the bot with long polling (no webhook, no web server)
     logger.info("Starting Sure Betting Tips bot with long polling...")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
